@@ -7,7 +7,7 @@ import LogoImg from "../logo.png";
 import "./index.less";
 
 const LoginIndex = (props) => {
-  const onFinish = (values) => {
+  const onLogin = (values) => {
     props.history.push("/home");
   };
 
@@ -77,7 +77,7 @@ const LoginIndex = (props) => {
                 >
                   注册
                 </Button>
-                <Button className="submit-btn" size="small" type="primary">
+                <Button className="submit-btn" size="small" type="primary" onClick={onLogin}>
                   登录
                 </Button>
               </div>

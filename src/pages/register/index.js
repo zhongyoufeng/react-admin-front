@@ -14,13 +14,23 @@ import CanvasBack from "../../component/CanvasBack/index.js";
 import LogoImg from "../logo.png";
 import "./index.less";
 const RegisterIndex = (props) => {
+  const validateMessages = {
+    required: "改项必填！",
+    types: {
+      email: "邮箱格式错误，请重新输入！",
+      number: "数字格式错误，请重新输入！",
+    },
+    number: {
+      range: "超过最大长度",
+    },
+  };
   return (
     <div className="page-register">
       <div className="canvasBox">
         <CanvasBack row={12} col={8} />
       </div>
       <div className="registerBox show">
-        <Form>
+        <Form validateMessages={validateMessages}>
           <div className="title">
             <img src={LogoImg} alt="logo" />
             <span>物资申领系统-注册</span>
@@ -46,97 +56,6 @@ const RegisterIndex = (props) => {
             </Form.Item>
 
             <Form.Item
-              name="username"
-              rules={[
-                { max: 12, message: "最大长度为12位字符" },
-                {
-                  required: true,
-                  whitespace: true,
-                  message: "请输入真实姓名",
-                },
-              ]}
-            >
-              <Input
-                prefix={<UserOutlined style={{ fontSize: 13 }} />}
-                size="large"
-                id="username"
-                placeholder="请输入真实姓名"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="cardID"
-              rules={[
-                { max: 40, message: "最大长度为40位字符" },
-                {
-                  required: true,
-                  whitespace: true,
-                  message: "请输入身份证号",
-                },
-              ]}
-            >
-              <Input
-                prefix={<ContactsOutlined style={{ fontSize: 13 }} />}
-                size="large"
-                id="cardID"
-                placeholder="请输入身份证号"
-              />
-            </Form.Item>
-            <Form.Item
-              name="phone"
-              rules={[
-                { max: 11, message: "最大长度为11位字符" },
-                {
-                  required: true,
-                  whitespace: true,
-                  message: "请输入手机号",
-                },
-              ]}
-            >
-              <Input
-                prefix={<PhoneOutlined style={{ fontSize: 13 }} />}
-                size="large"
-                id="phone"
-                placeholder="请输入手机号"
-              />
-            </Form.Item>
-            <Form.Item
-              name="email"
-              rules={[
-                { max: 40, message: "最大长度为40位字符" },
-                {
-                  required: true,
-                  whitespace: true,
-                  message: "请输入邮箱",
-                },
-              ]}
-            >
-              <Input
-                prefix={<MailOutlined style={{ fontSize: 13 }} />}
-                size="large"
-                id="email"
-                placeholder="请输入邮箱"
-              />
-            </Form.Item>
-            <Form.Item
-              name="address"
-              rules={[
-                { max: 40, message: "最大长度为40位字符" },
-                {
-                  required: true,
-                  whitespace: true,
-                  message: "请输入住宅地址",
-                },
-              ]}
-            >
-              <Input
-                prefix={<EnvironmentOutlined style={{ fontSize: 13 }} />}
-                size="large"
-                id="address"
-                placeholder="请输入住宅地址"
-              />
-            </Form.Item>
-            <Form.Item
               name="password"
               rules={[
                 { required: true, message: "请输入密码" },
@@ -148,6 +67,20 @@ const RegisterIndex = (props) => {
                 size="large"
                 type="password"
                 placeholder="请输入密码"
+              />
+            </Form.Item>
+            <Form.Item
+              name="confirmpassword"
+              rules={[
+                { required: true, message: "请再次输入密码" },
+                { max: 18, message: "最大长度18个字符" },
+              ]}
+            >
+              <Input
+                prefix={<KeyOutlined style={{ fontSize: 13 }} />}
+                size="large"
+                type="confirmpassword"
+                placeholder="请再次输入密码"
               />
             </Form.Item>
             <div className="register-btn-box">

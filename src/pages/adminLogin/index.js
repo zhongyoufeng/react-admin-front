@@ -10,11 +10,9 @@ const AdminLoginIndex = (props) => {
   const onFinish = (values) => {
     props.history.push("/home");
   };
-
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
-
   return (
     <div className="page-adminlogin">
       <div className="canvasBox">

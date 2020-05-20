@@ -13,6 +13,8 @@ export default function RouterIndex() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       <Route path="/adminlogin" component={AdminLogin} />
+      <Route path="/home" component={HomeIndex} />
+
     </Switch>
   );
 }
