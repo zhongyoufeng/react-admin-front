@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Form, Input, Button, Checkbox } from "antd";
 import {
   UserOutlined,
@@ -7,80 +7,216 @@ import {
   PhoneOutlined,
   MailOutlined,
   EnvironmentOutlined,
-  TeamOutlined,
+  TeamOutlined
 } from "@ant-design/icons";
 import { withRouter } from "react-router-dom";
 import CanvasBack from "../../component/CanvasBack/index.js";
 import LogoImg from "../logo.png";
 import "./index.less";
-const RegisterIndex = (props) => {
+const RegisterIndex = props => {
   const validateMessages = {
     required: "改项必填！",
     types: {
       email: "邮箱格式错误，请重新输入！",
-      number: "数字格式错误，请重新输入！",
+      number: "数字格式错误，请重新输入！"
     },
     number: {
-      range: "超过最大长度",
-    },
+      range: "超过最大长度"
+    }
   };
+  const [address, setaddress] = useState("");
+  const [email, setemail] = useState("");
+  const [idcard, setidcard] = useState("");
+  const [name, setname] = useState("");
+  const [phone, setphone] = useState("");
+  const [username, setusername] = useState("");
+  const [userpwd, setuserpwd] = useState("");
+  const [role, setrole] = useState("user");
+  const [form] = Form.useForm();
+  async function onFinish(value) {
+    let { address, username, name, phone, email, userpwd, idcard } = value;
+    let params = {
+      address,
+      username,
+      name,
+      phone,
+      email,
+      userpwd,
+      idcard,
+      role
+    };
+    let registerRes = await window.$post("sys/user/save", params);
+    console.log(registerRes);
+  }
   return (
     <div className="page-register">
       <div className="canvasBox">
         <CanvasBack row={12} col={8} />
       </div>
       <div className="registerBox show">
-        <Form validateMessages={validateMessages}>
+        <Form
+          validateMessages={validateMessages}
+          form={form}
+          name="register"
+          onFinish={onFinish}
+        >
           <div className="title">
             <img src={LogoImg} alt="logo" />
             <span>物资申领系统-注册</span>
           </div>
           <div>
             <Form.Item
-              name="nikename"
+              name="username"
               rules={[
                 { max: 12, message: "最大长度为12位字符" },
                 {
                   required: true,
                   whitespace: true,
-                  message: "请输入用户名",
-                },
+                  message: "请输入用户名"
+                }
               ]}
             >
               <Input
                 prefix={<TeamOutlined style={{ fontSize: 13 }} />}
                 size="large"
-                id="nikename"
+                id="username"
+                value={username}
+                onChange={value => {
+                  setusername(value);
+                }}
                 placeholder="请输入用户名"
               />
             </Form.Item>
 
             <Form.Item
-              name="password"
+              name="name"
               rules={[
-                { required: true, message: "请输入密码" },
-                { max: 18, message: "最大长度18个字符" },
+                { max: 12, message: "最大长度为12位字符" },
+                {
+                  required: true,
+                  whitespace: true,
+                  message: "请输入真实姓名"
+                }
               ]}
             >
               <Input
-                prefix={<KeyOutlined style={{ fontSize: 13 }} />}
+                prefix={<UserOutlined style={{ fontSize: 13 }} />}
                 size="large"
-                type="password"
-                placeholder="请输入密码"
+                id="name"
+                value={name}
+                onChange={value => {
+                  setname(value);
+                }}
+                placeholder="请输入真实姓名"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="idcard"
+              rules={[
+                { max: 40, message: "最大长度为40位字符" },
+                {
+                  required: true,
+                  whitespace: true,
+                  message: "请输入身份证号"
+                }
+              ]}
+            >
+              <Input
+                prefix={<ContactsOutlined style={{ fontSize: 13 }} />}
+                size="large"
+                id="idcard"
+                value={idcard}
+                onChange={value => {
+                  setidcard(value);
+                }}
+                placeholder="请输入身份证号"
               />
             </Form.Item>
             <Form.Item
-              name="confirmpassword"
+              name="phone"
               rules={[
-                { required: true, message: "请再次输入密码" },
-                { max: 18, message: "最大长度18个字符" },
+                { max: 11, message: "最大长度为11位字符" },
+                {
+                  required: true,
+                  whitespace: true,
+                  message: "请输入手机号"
+                }
+              ]}
+            >
+              <Input
+                prefix={<PhoneOutlined style={{ fontSize: 13 }} />}
+                size="large"
+                id="phone"
+                value={phone}
+                onChange={value => {
+                  setphone(value);
+                }}
+                placeholder="请输入手机号"
+              />
+            </Form.Item>
+            <Form.Item
+              name="email"
+              rules={[
+                {
+                  type: "email",
+                  message: "请正确填写邮箱格式"
+                },
+                {
+                  required: true,
+                  message: "请填写邮箱地址"
+                }
+              ]}
+            >
+              <Input
+                prefix={<MailOutlined style={{ fontSize: 13 }} />}
+                size="large"
+                id="email"
+                value={email}
+                onChange={value => {
+                  setemail(value);
+                }}
+                placeholder="请输入邮箱"
+              />
+            </Form.Item>
+            <Form.Item
+              name="address"
+              rules={[
+                { max: 40, message: "最大长度为40位字符" },
+                {
+                  required: true,
+                  whitespace: true,
+                  message: "请输入住宅地址"
+                }
+              ]}
+            >
+              <Input
+                prefix={<EnvironmentOutlined style={{ fontSize: 13 }} />}
+                size="large"
+                id="address"
+                value={address}
+                onChange={value => {
+                  setaddress(value);
+                }}
+                placeholder="请输入住宅地址"
+              />
+            </Form.Item>
+            <Form.Item
+              name="userpwd"
+              rules={[
+                { required: true, message: "请输入密码" },
+                { max: 18, message: "最大长度18个字符" }
               ]}
             >
               <Input
                 prefix={<KeyOutlined style={{ fontSize: 13 }} />}
                 size="large"
-                type="confirmpassword"
-                placeholder="请再次输入密码"
+                type="userpwd"
+                value={userpwd}
+                onChange={value => {
+                  setuserpwd(value);
+                }}
+                placeholder="请输入密码"
               />
             </Form.Item>
             <div className="register-btn-box">
@@ -92,7 +228,12 @@ const RegisterIndex = (props) => {
                 已有账号，去登录
               </a>
               <div>
-                <Button className="submit-btn" type="primary" size="large">
+                <Button
+                  className="submit-btn"
+                  type="primary"
+                  size="large"
+                  htmlType="submit"
+                >
                   注册
                 </Button>
               </div>

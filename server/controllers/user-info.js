@@ -87,6 +87,16 @@ module.exports = {
           data: null,
           code: ''
       }
+      if(!formData.userName||!formData.password){
+        result={
+          success: false,
+          message: '缺少必要参数',
+          data: null,
+          code: ''
+        }
+        ctx.body = result
+        return;
+      }
       let validateResult = await userInfoService.validatorSignUp( formData )
       if ( validateResult.success === false ) {
         result = validateResult

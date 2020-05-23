@@ -7,7 +7,7 @@ import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   DownOutlined,
-  UserOutlined,
+  UserOutlined
 } from "@ant-design/icons";
 import "./home.css";
 import ContentIndex from "../../router/ContentIndex";
@@ -15,7 +15,9 @@ const { Header, Content } = Layout;
 const menu = (
   <Menu>
     <Menu.Item>
-      <Link to="/">退出</Link>
+      <Link to="/" key="loginout">
+        退出
+      </Link>
     </Menu.Item>
   </Menu>
 );
@@ -38,7 +40,8 @@ export const HomeIndex = () => {
             <Dropdown overlay={menu}>
               <Link
                 className="ant-dropdown-link"
-                onClick={(e) => e.preventDefault()}
+                onClick={e => e.preventDefault()}
+                key="user"
               >
                 user01 <DownOutlined />
               </Link>

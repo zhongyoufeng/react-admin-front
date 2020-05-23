@@ -214,6 +214,7 @@ function AdminIndex(props) {
           showTotal={(total, range) => `共${total}条`}
         />
       </Card>
+     
       {/* 发布物资 */}
       <Modal
         title="物资发布信息填写"
@@ -253,6 +254,8 @@ function AdminIndex(props) {
           </Form.Item>
         </Form>
       </Modal>
+      
+      
       {/* 申领人数详情 */}
       <Modal
         title="防疫专项物资申领人数详情"

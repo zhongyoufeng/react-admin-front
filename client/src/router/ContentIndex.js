@@ -9,14 +9,12 @@ import AdminUserInfoIndex from "../pages/adminUserInfo";
 export default function ContentIndex() {
   return (
     <Switch>
-      <Route path="/home" exact render={() => <Redirect to="/home/index" />} />
-      <Route path="/home/index" component={Index} />
-      <Route path="/home/feedback" component={Feedback} />
-      <Route path="/adminhome" exact render={() => <Redirect to="/admin/index" />}  />
-      <Route path="/adminhome/index" component={AdminIndex} />
-      <Route path="/adminhome/userinfo" component={AdminUserInfoIndex} />
-
-
+      <Route path="/home" exact  key="home" render={() => <Redirect to="/home/index" />} />
+      <Route path="/home/index" component={Index} key="index"/>
+      <Route path="/home/feedback" component={Feedback}  key="feedback"/>
+      <Route path="/adminhome" exact   key="adminhome" render={() => <Redirect to="/adminhome/index" />}  />
+      <Route path="/adminhome/index" component={AdminIndex}   key="adminindex"/>
+      <Route path="/adminhome/userinfo" component={AdminUserInfoIndex} key="adminuserinfo" />
     </Switch>
   );
 }

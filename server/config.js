@@ -1,9 +1,9 @@
 const config = {
   port: 3111,
   database: {
-    DATABASE: 'music',
+    DATABASE: 'Material',
     USERNAME: 'root',
-    PASSWORD: '123456',
+    PASSWORD: '123',
     PORT: '3306',
     HOST: 'localhost'
   }

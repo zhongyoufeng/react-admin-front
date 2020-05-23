@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Tag, Table, Pagination, Modal, Form, Input,DatePicker } from "antd";
-import { connect } from "react-redux";
 function Index(props) {
     const { RangePicker } = DatePicker;
   const columns = [
