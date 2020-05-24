@@ -8,7 +8,8 @@ import {
   Button,
   Table,
   Modal,
-  Pagination
+  Pagination,
+  message
 } from "antd";
 import { QuestionCircleOutlined } from "@ant-design/icons";
 const { Option } = Select;
@@ -16,7 +17,9 @@ const { TextArea } = Input;
 const RegistrationForm = () => {
   const [form] = Form.useForm();
   const [IsModal, setIsModal] = useState(false);
-
+  const [email,setemail]=useState("");
+  const [phone,setphone]=useState("");
+  const [content,setcontent]=useState("")
   const columns = [
     {
       title: "物资ID",
@@ -92,7 +95,18 @@ const RegistrationForm = () => {
       phonenum: "250"
     }
   ];
-  const submitSuccess = () => {
+  const submitSuccess =async () => {
+    if(email==""||phone==""||content==""){
+      message.error("请填写必填字段！")
+      return
+    }
+    let params={
+      content,
+      phone,
+      email
+    }
+    const pushFeedBackRes=await window.$post("sys/suggest/save",params)
+    
     setIsModal(false);
   };
   const submitCancel = () => {
@@ -137,9 +151,9 @@ const RegistrationForm = () => {
         />
       </Card>
 
-      {/* 发布物资 */}
+      {/* 建议反馈信息填写 */}
       <Modal
-        title="物资发布信息填写"
+        title="建议反馈信息填写"
         visible={IsModal}
         footer={[
           <Button key="back" onClick={submitCancel}>
@@ -170,7 +184,7 @@ const RegistrationForm = () => {
               }
             ]}
           >
-            <Input size="default" id="email" />
+            <Input size="default" id="email" value={email} onChange={({target})=>{setemail(target.value)}}/>
           </Form.Item>
           <Form.Item
             name="phone"
@@ -187,6 +201,8 @@ const RegistrationForm = () => {
               style={{
                 width: "100%"
               }}
+              value={phone}
+              onChange={({target})=>{setphone(target.value)}}
             />
           </Form.Item>
           <Form.Item
@@ -194,7 +210,7 @@ const RegistrationForm = () => {
             name="content"
             rules={[{ required: true, message: "建议或反馈!" }]}
           >
-            <TextArea rows={4} id="content" />
+            <TextArea rows={4} id="content" value={content} onChange={({target})=>{setcontent(target.value)}} />
           </Form.Item>
         </Form>
       </Modal>
