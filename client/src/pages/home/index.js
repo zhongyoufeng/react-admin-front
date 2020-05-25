@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Layout, Menu, Dropdown, Avatar } from "antd";
+import React, { useState, useEffect } from "react";
+import { Layout, Menu, Dropdown, message } from "antd";
 import MenuList from "../../component/Menu/MenuList";
 import { Link } from "react-router-dom";
 import { MenuData } from "./data";
@@ -7,25 +7,34 @@ import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   DownOutlined,
-  UserOutlined
 } from "@ant-design/icons";
 import "./home.css";
 import ContentIndex from "../../router/ContentIndex";
 const { Header, Content } = Layout;
-const menu = (
-  <Menu>
-    <Menu.Item>
-      <Link to="/" key="loginout">
-        退出
-      </Link>
-    </Menu.Item>
-  </Menu>
-);
-export const HomeIndex = () => {
+
+export const HomeIndex = (props) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [currentUser, setcurrentUser] = useState(null);
+  function judeStoreUser() {
+    const storageStr = localStorage.getItem("CURRENT_USER_NAME");
+    if (storageStr && storageStr != "null") {
+      setcurrentUser(JSON.parse(storageStr));
+    } else {
+      message.error("请登录！");
+      props.history.push("/");
+      return;
+    }
+  }
+  function loginOut() {
+    localStorage.setItem("CURRENT_USER_NAME", null);
+    props.history.push("/");
+  }
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
   };
+  useEffect(() => {
+    judeStoreUser();
+  }, []);
   return (
     <div>
       <Header className="home-header">
@@ -37,13 +46,28 @@ export const HomeIndex = () => {
         <span className="home-title">物资申领系统</span>
         <div className="header-right">
           <div className="home-header-menu">
-            <Dropdown overlay={menu}>
+            <Dropdown
+              overlay={
+                <Menu>
+                  <Menu.Item>
+                    <a
+                      onClick={() => {
+                        loginOut();
+                      }}
+                    >
+                      退出
+                    </a>
+                  </Menu.Item>
+                </Menu>
+              }
+            >
               <Link
                 className="ant-dropdown-link"
-                onClick={e => e.preventDefault()}
+                onClick={(e) => e.preventDefault()}
                 key="user"
               >
-                user01 <DownOutlined />
+                {currentUser != null ? currentUser.username : "无"}
+                <DownOutlined />
               </Link>
             </Dropdown>
           </div>

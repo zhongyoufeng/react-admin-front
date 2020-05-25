@@ -1,4 +1,4 @@
-.page-register {
+.page-login {
   height: calc(100vh - 60px);
   min-height: 400px;
   display: flex;
@@ -12,9 +12,9 @@
     height: 100%;
     z-index: 0;
   }
-  .registerBox {
+  .loginBox {
     position: relative;
-    margin-top:2vh;
+    margin-top: 20vh;
     flex: none;
     width: 400px;
     padding: 20px;
@@ -43,11 +43,11 @@
     }
     .submit-btn {
       float: right;
-      width: 200px;
+      width:150px;
       margin-right: 15px;
     }
   }
-  .register-back {
+  .login-back {
     width: 100%;
     height: 100%;
     position: fixed;
@@ -59,10 +59,25 @@
     }
   }
 }
-.register-btn-box {
+.login-btn-box {
   line-height: 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   color: white;
+}
+.captcha {
+  cursor: pointer;
+  width: 150px;
+  height: 41px;
+  position: absolute;
+  bottom: 20%;
+  right: 5%;
+}
+.captcha-box {
+  display: flex;
+  align-items: center;
+}
+.captchainput {
+  width: 200px;
 }

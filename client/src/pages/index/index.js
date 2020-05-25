@@ -1,7 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Tag, Table, Pagination, Modal, Form, Input,DatePicker } from "antd";
+import {
+  Card,
+  Button,
+  Tag,
+  Table,
+  Pagination,
+  Modal,
+  Form,
+  Input,
+  DatePicker,
+  message,
+} from "antd";
+import moment from "moment";
 function Index(props) {
-    const { RangePicker } = DatePicker;
+  const { RangePicker } = DatePicker;
   const columns = [
     {
       title: "物资ID",
@@ -48,7 +60,7 @@ function Index(props) {
             type="link"
             disabled={record.status != 1 ? true : false}
             onClick={() => {
-              setIsModal(true);
+              AppleMaterials(record.id);
             }}
           >
             申请领用
@@ -57,52 +69,84 @@ function Index(props) {
       ),
     },
   ];
-  const dataSource = [
-    {
-      id: "1",
-      detail: "N95口罩、消毒水",
-      pushtime: "2020-05-20",
-      endtime: "2020-05-21",
-      status: "1",
-    },
-    {
-      id: "2",
-      detail: "医用口罩、雨衣",
-      pushtime: "2020-05-22",
-      endtime: "2020-05-28",
-      status: "2",
-    },
-    {
-      id: "3",
-      detail: "手套，帐篷",
-      pushtime: "2020-06-22",
-      endtime: "2020-08-28",
-      status: "3",
-    },
-  ];
+
+  const startTime = moment(
+    new Date().getTime() - 7 * 60 * 60 * 24 * 1000
+  ).format("YYYY-MM-DD");
+  const endTime = moment(new Date().getTime()).format("YYYY-MM-DD");
   const [IsModal, setIsModal] = useState(false);
+  const [ListData, setListData] = useState([]);
+  const [TotalCount, setTotalCount] = useState(0);
+  const [PageIndex, setPageIndex] = useState(1);
   const submitSuccess = () => {
     setIsModal(false);
   };
   const submitCancel = () => {
     setIsModal(false);
   };
-  useEffect(() => {}, []);
+  async function QueryMaterialsList(startDate, endDate) {
+    let params = {
+      startDate: startDate || startTime,
+      endDate: endDate || endTime,
+      page: PageIndex,
+    };
+    let res = await window.$get("sys/materials/list", params);
+    if (res.code == 0) {
+      setListData(res.page.list);
+      setPageIndex(res.page.currPage);
+      setTotalCount(res.page.totalCount);
+    } else {
+      message.error("查询物资列表失败！");
+    }
+  }
+  function submitTime(time) {
+    let startDate = moment(time[0]).format("YYYY-MM-DD");
+    let endDate = moment(time[1]).format("YYYY-MM-DD");
+    QueryMaterialsList(startDate, endDate);
+  }
+  async function AppleMaterials(materialsId) {
+    let CurrentUser = JSON.parse(localStorage.getItem("CURRENT_USER_NAME"));
+    let params = {
+      materialsId,
+      userId: CurrentUser.id,
+    };
+    let res = await window.$post("sys/materials/apply", params);
+    if (res.code) {
+      message.success("申领该物资成功！");
+      QueryMaterialsList();
+    } else {
+      message.error("申领该物资失败！");
+    }
+  }
+  useEffect(() => {
+    QueryMaterialsList();
+  }, [PageIndex]);
 
   return (
     <div>
       <Card style={{ margin: 10 }} title="物资申领列表" hoverable>
-      <RangePicker style={{ marginBottom: 20 }} placeholder={["发布时间","到期时间"]}/>
+        <RangePicker
+          defaultValue={[
+            moment(startTime, "YYYY-MM-DD"),
+            moment(endTime, "YYYY-MM-DD"),
+          ]}
+          style={{ marginBottom: 20 }}
+          placeholder={["发布时间", "到期时间"]}
+          onChange={submitTime}
+        />
         <Table
           columns={columns}
-          dataSource={dataSource}
+          dataSource={ListData}
           pagination={false}
           style={{ marginBottom: "20px" }}
         />
         <Pagination
-          defaultCurrent={1}
-          total={3}
+          defaultCurrent={PageIndex}
+          total={TotalCount}
           showTotal={(total, range) => `共${total}条`}
+          onChange={(page, pageSize) => {
+            setPageIndex(page);
+          }}
         />
       </Card>
       <Modal

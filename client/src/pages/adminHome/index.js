@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Layout, Menu, Dropdown, Avatar } from "antd";
+import React, { useState, useEffect } from "react";
+import { Layout, Menu, Dropdown, message } from "antd";
 import MenuList from "../../component/Menu/MenuList";
 import { Link } from "react-router-dom";
 import { MenuData } from "./data";
@@ -11,18 +11,35 @@ import {
 import "./home.css";
 import ContentIndex from "../../router/ContentIndex";
 const { Header, Content } = Layout;
-const menu = (
-  <Menu>
-    <Menu.Item>
-      <Link to="/">退出</Link>
-    </Menu.Item>
-  </Menu>
-);
-export const AdminHomeIndex = () => {
+export const AdminHomeIndex = (props) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [currentUser, setcurrentUser] = useState(null);
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
   };
+  function judeStoreUser() {
+    const storageStr = localStorage.getItem("CURRENT_USER_NAME");
+    if (storageStr && storageStr != "null") {
+      let jsonparseData = JSON.parse(storageStr);
+      if (jsonparseData.role != "admin") {
+        message.error("没有权限查看管理员界面,请使用管理员账号登录");
+        props.history.push("/adminlogin");
+        return;
+      }
+      setcurrentUser(jsonparseData);
+    } else {
+      message.error("请登录！");
+      props.history.push("/adminlogin");
+      return;
+    }
+  }
+  function loginOut() {
+    localStorage.setItem("CURRENT_USER_NAME", null);
+    props.history.push("/");
+  }
+  useEffect(() => {
+    judeStoreUser();
+  }, []);
   return (
     <div>
       <Header className="home-header">
@@ -34,12 +51,27 @@ export const AdminHomeIndex = () => {
         <span className="home-title">物资申领管理系统</span>
         <div className="header-right">
           <div className="home-header-menu">
-            <Dropdown overlay={menu}>
+            <Dropdown
+              overlay={
+                <Menu>
+                  <Menu.Item>
+                    <a
+                      onClick={() => {
+                        loginOut();
+                      }}
+                    >
+                      退出
+                    </a>
+                  </Menu.Item>
+                </Menu>
+              }
+            >
               <Link
                 className="ant-dropdown-link"
                 onClick={(e) => e.preventDefault()}
               >
-                admin <DownOutlined />
+                {currentUser != null ? currentUser.username : "无"}{" "}
+                <DownOutlined />
               </Link>
             </Dropdown>
           </div>

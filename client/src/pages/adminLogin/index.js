@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Button, Checkbox } from "antd";
+import { Form, Input, Button, Checkbox, message } from "antd";
 import { UserOutlined, KeyOutlined, MessageOutlined } from "@ant-design/icons";
 import { withRouter } from "react-router-dom";
 import CanvasBack from "../../component/CanvasBack/index.js";
 import LogoImg from "../logo.png";
 import "./index.less";
-const AdminLoginIndex = props => {
+
+const AdminLoginIndex = (props) => {
   const [form] = Form.useForm();
   const [codeCaptcha, setcodeCaptcha] = useState("");
   const [username, setusername] = useState("");
@@ -18,7 +19,18 @@ const AdminLoginIndex = props => {
     let { code, username, userpwd } = value;
     let params = { code, username, userpwd };
     let registerRes = await window.$post("login", params);
-    props.history.push("/adminhome");
+    if (registerRes.code == 0) {
+      localStorage.setItem(
+        "CURRENT_USER_NAME",
+        JSON.stringify(registerRes.user)
+      );
+      message.success("登录成功，即将进入系统...");
+      setTimeout(() => {
+        props.history.push("/adminhome");
+      }, 2000);
+    } else {
+      message.error("登录失败，请重试！");
+    }
   }
   useEffect(() => {}, []);
   return (
@@ -30,7 +42,7 @@ const AdminLoginIndex = props => {
         <Form form={form} name="register" onFinish={onFinish}>
           <div className="title">
             <img src={LogoImg} alt="logo" />
-            <span>申领系统-管理登录</span>
+            <span>系统-管理员登录</span>
           </div>
           <div>
             <Form.Item
@@ -40,8 +52,8 @@ const AdminLoginIndex = props => {
                 {
                   required: true,
                   whitespace: true,
-                  message: "请输入用户名"
-                }
+                  message: "请输入用户名",
+                },
               ]}
             >
               <Input
@@ -49,8 +61,8 @@ const AdminLoginIndex = props => {
                 size="large"
                 id="username"
                 value={username}
-                onChange={value => {
-                  setusername(value);
+                onChange={({ target }) => {
+                  setusername(target.value);
                 }}
                 placeholder="请输入用户名"
               />
@@ -59,7 +71,7 @@ const AdminLoginIndex = props => {
               name="userpwd"
               rules={[
                 { required: true, message: "请输入密码" },
-                { max: 18, message: "最大长度18个字符" }
+                { max: 18, message: "最大长度18个字符" },
               ]}
             >
               <Input
@@ -68,8 +80,8 @@ const AdminLoginIndex = props => {
                 type="password"
                 id="userpwd"
                 value={userpwd}
-                onChange={value => {
-                  setuserpwd(value);
+                onChange={({ target }) => {
+                  setuserpwd(target.value);
                 }}
                 placeholder="请输入密码"
               />
@@ -78,7 +90,7 @@ const AdminLoginIndex = props => {
               name="captcha"
               rules={[
                 { required: true, message: "请输入验证码" },
-                { max: 18, message: "最大长度18个字符" }
+                { max: 18, message: "最大长度18个字符" },
               ]}
             >
               <Input
@@ -87,8 +99,8 @@ const AdminLoginIndex = props => {
                 id="code"
                 className="captchainput"
                 value={codeCaptcha}
-                onChange={value => {
-                  setcodeCaptcha(value);
+                onChange={({ target }) => {
+                  setcodeCaptcha(target.value);
                 }}
                 placeholder="请输入验证码"
               />
@@ -104,24 +116,14 @@ const AdminLoginIndex = props => {
             <div className="login-btn-box">
               <a
                 onClick={() => {
-                  props.history.push("/adminlogin");
+                  props.history.push("/login");
                 }}
               >
-                切换管理员登录
+                切换普通用户登录
               </a>
               <div>
                 <Button
                   className="submit-btn"
-                  size="small"
-                  onClick={() => {
-                    props.history.push("/register");
-                  }}
-                >
-                  注册
-                </Button>
-                <Button
-                  className="submit-btn"
-                  size="small"
                   type="primary"
                   htmlType="submit"
                 >

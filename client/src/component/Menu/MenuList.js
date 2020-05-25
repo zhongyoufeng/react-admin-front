@@ -24,7 +24,7 @@ export default function MenuList(props) {
         return (
           <Menu.Item key={item.index}>
             <IconFont type={item.icon} />
-            <Link to={item.link} className="link" key={item.index}>
+            <Link to={item.urls} className="link" key={item.index}>
               {item.title}
             </Link>
           </Menu.Item>

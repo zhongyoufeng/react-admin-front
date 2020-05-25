@@ -1,122 +1,49 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./index.css";
-import {
-  Form,
-  Input,
-  Select,
-  Card,
-  Button,
-  Table,
-  Modal,
-  Pagination,
-  message
-} from "antd";
-import { QuestionCircleOutlined } from "@ant-design/icons";
+import { Form, Input, Select, Button, message } from "antd";
 const { Option } = Select;
 const { TextArea } = Input;
-const RegistrationForm = () => {
+
+export default function FeedBack(props) {
   const [form] = Form.useForm();
-  const [IsModal, setIsModal] = useState(false);
-  const [email,setemail]=useState("");
-  const [phone,setphone]=useState("");
-  const [content,setcontent]=useState("")
-  const columns = [
-    {
-      title: "物资ID",
-      key: "id",
-      dataIndex: "id"
-    },
-    {
-      title: "物资名称",
-      key: "name",
-      dataIndex: "name"
-    },
-    {
-      title: "物资详情",
-      key: "detail",
-      dataIndex: "detail"
-    },
-    {
-      title: "发布时间",
-      key: "pushtime",
-      dataIndex: "pushtime"
-    },
-    {
-      title: "到期时间",
-      key: "endtime",
-      dataIndex: "endtime"
-    },
-    {
-      title: "物资数量",
-      key: "number",
-      dataIndex: "number"
-    },
-    {
-      title: "申领人数",
-      key: "phonenum",
-      dataIndex: "phonenum"
-    },
-    {
-      title: "操作",
-      key: "action",
-      render: (text, record) => (
-        <>
-          <Button type="link">删除</Button>
-        </>
-      )
-    }
-  ];
-  const dataSource = [
-    {
-      id: "1",
-      name: "防疫专项",
-      detail: "N95口罩、消毒水",
-      pushtime: "2020-05-20",
-      endtime: "2020-05-21",
-      number: "100",
-      phonenum: "250"
-    },
-    {
-      id: "2",
-      name: "政府发放",
-      detail: "医用口罩、雨衣",
-      pushtime: "2020-05-22",
-      endtime: "2020-05-28",
-      number: "100",
-      phonenum: "250"
-    },
-    {
-      id: "3",
-      name: "企业福利",
-      detail: "手套，帐篷",
-      pushtime: "2020-06-22",
-      endtime: "2020-08-28",
-      number: "100",
-      phonenum: "250"
-    }
-  ];
-  const submitSuccess =async () => {
-    if(email==""||phone==""||content==""){
-      message.error("请填写必填字段！")
-      return
-    }
-    let params={
-      content,
+  const [currentUser, setcurrentUser] = useState(null);
+  const [email, setemail] = useState(null);
+  const [phone, setphone] = useState(null);
+  async function onFinish(values) {
+    let { content, email, phone } = values;
+    let params = {
+      email,
       phone,
-      email
+      content,
+      id: currentUser.id,
+    };
+    let updateRes = await window.$post("sys/suggest/save", params);
+    if (updateRes.code == 0) {
+      message.success("建议发送成功！");
+    } else {
+      message.error("建议发送失败！");
     }
-    const pushFeedBackRes=await window.$post("sys/suggest/save",params)
-    
-    setIsModal(false);
-  };
-  const submitCancel = () => {
-    setIsModal(false);
-  };
+  }
+  function judeStoreUser() {
+    const storageStr = localStorage.getItem("CURRENT_USER_NAME");
+    if (storageStr && storageStr != "null") {
+      let jsonparseData = JSON.parse(storageStr);
+      let { email, phone } = jsonparseData;
+      form.setFieldsValue({
+        email,
+        phone,
+      });
+      setcurrentUser(jsonparseData);
+    } else {
+      message.error("请登录！");
+      props.history.push("/");
+    }
+  }
   const prefixSelector = (
     <Form.Item name="prefix" noStyle>
       <Select
         style={{
-          width: 70
+          width: 70,
         }}
       >
         <Option value="86">+86</Option>
@@ -124,104 +51,94 @@ const RegistrationForm = () => {
       </Select>
     </Form.Item>
   );
-  return (
-    <>
-      <Card style={{ margin: 10 }} title="历史反馈记录" hoverable>
-        <div>
-          <Button
-            type="primary"
-            style={{ marginBottom: "20px" }}
-            onClick={() => {
-              setIsModal(true);
-            }}
-          >
-            新增反馈
-          </Button>
-        </div>
-        <Table
-          columns={columns}
-          dataSource={dataSource}
-          pagination={false}
-          style={{ marginBottom: "20px" }}
-        />
-        <Pagination
-          defaultCurrent={1}
-          total={3}
-          showTotal={(total, range) => `共${total}条`}
-        />
-      </Card>
-
-      {/* 建议反馈信息填写 */}
-      <Modal
-        title="建议反馈信息填写"
-        visible={IsModal}
-        footer={[
-          <Button key="back" onClick={submitCancel}>
-            取消
-          </Button>,
-          <Button key="submit" type="primary" onClick={submitSuccess}>
-            发布
-          </Button>
-        ]}
-      >
-        <Form
-          name="push"
-          initialValues={{
-            prefix: "86"
-          }}
-        >
-          <Form.Item
-            label="邮箱地址"
-            name="email"
-            rules={[
-              {
-                type: "email",
-                message: "请正确填写邮箱格式"
-              },
-              {
-                required: true,
-                message: "请填写邮箱地址"
-              }
-            ]}
-          >
-            <Input size="default" id="email" value={email} onChange={({target})=>{setemail(target.value)}}/>
-          </Form.Item>
-          <Form.Item
-            name="phone"
-            label="手机号码"
-            rules={[
-              {
-                required: true,
-                message: "请输入手机号码！"
-              }
-            ]}
-          >
-            <Input
-              addonBefore={prefixSelector}
-              style={{
-                width: "100%"
-              }}
-              value={phone}
-              onChange={({target})=>{setphone(target.value)}}
-            />
-          </Form.Item>
-          <Form.Item
-            label="建议反馈"
-            name="content"
-            rules={[{ required: true, message: "建议或反馈!" }]}
-          >
-            <TextArea rows={4} id="content" value={content} onChange={({target})=>{setcontent(target.value)}} />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </>
-  );
-};
-
-export default function Feedback() {
+  useEffect(() => {
+    judeStoreUser();
+  }, []);
   return (
     <div>
-      <RegistrationForm />
+      <Form
+        className="feedback-form"
+        form={form}
+        name="register"
+        onFinish={onFinish}
+        initialValues={{
+          prefix: "86",
+        }}
+        scrollToFirstError
+      >
+        <div
+          style={{
+            fontSize: 30,
+            textAlign: "center",
+            marginBottom: 20,
+            marginTop: 40,
+          }}
+        >
+          建议反馈信息填写
+        </div>
+        <Form.Item
+          name="phone"
+          label="手机号码"
+          rules={[
+            {
+              required: true,
+              message: "请输入手机号码！",
+            },
+          ]}
+        >
+          <Input
+            addonBefore={prefixSelector}
+            style={{
+              width: "100%",
+            }}
+            id="phone"
+            value={phone}
+            onChange={({ target }) => {
+              setphone(target.value);
+            }}
+          />
+        </Form.Item>
+        <Form.Item
+          name="email"
+          label="邮箱地址"
+          rules={[
+            {
+              type: "email",
+              message: "您输入的E-mail的格式不正确!",
+            },
+            {
+              required: true,
+              message: "请输入你的E-mail!",
+            },
+          ]}
+        >
+          <Input
+            id="email"
+            value={email}
+            onChange={({ target }) => {
+              setemail(target.value);
+            }}
+          />
+        </Form.Item>
+        <Form.Item
+          name="feedback-text"
+          label="问题反馈"
+          rules={[
+            {
+              required: true,
+              message: "请输入问题或建议",
+            },
+          ]}
+        >
+          <TextArea rows={4} id="content" />
+        </Form.Item>
+
+        <Form.Item>
+          <Button type="primary" htmlType="submit">
+            提交反馈
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 }

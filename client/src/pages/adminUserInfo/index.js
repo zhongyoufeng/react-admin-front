@@ -8,42 +8,43 @@ import {
   Form,
   Input,
   DatePicker,
+  message,
 } from "antd";
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 function AdminUserInfoIndex(props) {
   const { RangePicker } = DatePicker;
   const { confirm } = Modal;
-  function showDeleteConfirm() {
+  function showDeleteConfirm(id) {
     confirm({
-      title: '确定删除改用户信息?',
+      title: "确定删除改用户信息?",
       icon: <ExclamationCircleOutlined />,
-      content: '',
-      okText: '确认',
-      okType: 'danger',
-      cancelText: '取消',
+      content: "",
+      okText: "确认",
+      okType: "danger",
+      cancelText: "取消",
       onOk() {
-        console.log('OK');
+        delUser(id);
       },
       onCancel() {
-        console.log('Cancel');
+        console.log("Cancel");
       },
     });
   }
-  const applyColums = [
+  const UserColums = [
     {
       title: "用户名",
-      key: "nikename",
-      dataIndex: "nikename",
-    },
-    {
-      title: "真实姓名",
       key: "username",
       dataIndex: "username",
     },
     {
+      title: "真实姓名",
+      key: "name",
+      dataIndex: "name",
+    },
+    {
       title: "身份证号",
-      key: "cardID",
-      dataIndex: "cardID",
+      key: "idcard",
+      dataIndex: "idcard",
     },
     {
       title: "手机号",
@@ -65,53 +66,69 @@ function AdminUserInfoIndex(props) {
       key: "operation",
       render: (text, record) => (
         <>
-          <Button type="link" onClick={showDeleteConfirm}>删除</Button>
+          <Button
+            type="link"
+            onClick={() => {
+              showDeleteConfirm(record.id);
+            }}
+          >
+            删除
+          </Button>
         </>
       ),
     },
   ];
-  const applyDataSource = [
-    {
-      nikename: "usero1",
-      username: "周杰伦",
-      cardID: "36415495656",
-      phone: "139784515",
-      email: "178156@qq.com",
-      address: "深圳市南山区深圳湾一号",
-    },
-    {
-      nikename: "usero2",
-      username: "大张伟",
-      cardID: "36415495656",
-      phone: "139784515",
-      email: "178156@qq.com",
-      address: "深圳市南山区深圳湾一号",
-    },
-    {
-      nikename: "usero3",
-      username: "林俊杰",
-      cardID: "36415495656",
-      phone: "139784515",
-      email: "178156@qq.com",
-      address: "深圳市南山区深圳湾一号",
-    },
-  ];
-
-  useEffect(() => {}, []);
-
+  const [UserList, setUserList] = useState([]);
+  const [TotalCount, setTotalCount] = useState(0);
+  const [PageIndex, setPageIndex] = useState(1);
+  async function getAllUserInfo() {
+    let params = {
+      page: PageIndex,
+    };
+    let res = await window.$get("sys/user/list", params);
+    if (res.code == 0) {
+      let list = res.page.list;
+      let FilterList = list.filter((item) => {
+        return item.role != "admin";
+      });
+      setUserList(FilterList);
+      setTotalCount(res.page.totalCount - 1);
+      setPageIndex(res.page.currPage);
+    } else {
+      message.error("获取用户信息失败！");
+    }
+  }
+  async function delUser(id) {
+    let params = {
+      ids: [id],
+    };
+    let res = await window.$post("sys/user/delete", params);
+    if (res.code == 0) {
+      message.success("删除改用户信息成功！");
+      getAllUserInfo();
+    } else {
+      message.error("删除改用户信息失败！");
+    }
+  }
+  useEffect(() => {
+    getAllUserInfo();
+  }, []);
   return (
     <div>
       <Card style={{ margin: 10 }} title="用户信息列表" hoverable>
         <Table
-          columns={applyColums}
-          dataSource={applyDataSource}
+          columns={UserColums}
+          dataSource={UserList}
           pagination={false}
           style={{ marginBottom: "20px" }}
         />
         <Pagination
-          defaultCurrent={1}
-          total={3}
+          defaultCurrent={PageIndex}
+          total={TotalCount}
           showTotal={(total, range) => `共${total}条`}
+          onCancel={(page, pageSize) => {
+            setPageIndex(page);
+          }}
         />
       </Card>
     </div>

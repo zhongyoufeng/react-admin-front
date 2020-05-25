@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Button, Checkbox } from "antd";
+import { Form, Input, Button, Checkbox, message } from "antd";
 import { UserOutlined, KeyOutlined, MessageOutlined } from "@ant-design/icons";
 import { withRouter } from "react-router-dom";
 import CanvasBack from "../../component/CanvasBack/index.js";
 import LogoImg from "../logo.png";
 import "./index.less";
 
-const LoginIndex = props => {
+const LoginIndex = (props) => {
   const [form] = Form.useForm();
   const [codeCaptcha, setcodeCaptcha] = useState("");
   const [username, setusername] = useState("");
@@ -19,7 +19,18 @@ const LoginIndex = props => {
     let { code, username, userpwd } = value;
     let params = { code, username, userpwd };
     let registerRes = await window.$post("login", params);
-    props.history.push("/home");
+    if (registerRes.code == 0) {
+      localStorage.setItem(
+        "CURRENT_USER_NAME",
+        JSON.stringify(registerRes.user)
+      );
+      message.success("登录成功，即将进入系统...");
+      setTimeout(() => {
+        props.history.push("/home");
+      }, 2000);
+    } else {
+      message.error("登录失败，请重试！");
+    }
   }
   useEffect(() => {}, []);
   return (
@@ -41,8 +52,8 @@ const LoginIndex = props => {
                 {
                   required: true,
                   whitespace: true,
-                  message: "请输入用户名"
-                }
+                  message: "请输入用户名",
+                },
               ]}
             >
               <Input
@@ -50,8 +61,8 @@ const LoginIndex = props => {
                 size="large"
                 id="username"
                 value={username}
-                onChange={value => {
-                  setusername(value);
+                onChange={({ target }) => {
+                  setusername(target.value);
                 }}
                 placeholder="请输入用户名"
               />
@@ -60,7 +71,7 @@ const LoginIndex = props => {
               name="userpwd"
               rules={[
                 { required: true, message: "请输入密码" },
-                { max: 18, message: "最大长度18个字符" }
+                { max: 18, message: "最大长度18个字符" },
               ]}
             >
               <Input
@@ -69,8 +80,8 @@ const LoginIndex = props => {
                 type="password"
                 id="userpwd"
                 value={userpwd}
-                onChange={value => {
-                  setuserpwd(value);
+                onChange={({ target }) => {
+                  setuserpwd(target.value);
                 }}
                 placeholder="请输入密码"
               />
@@ -79,7 +90,7 @@ const LoginIndex = props => {
               name="captcha"
               rules={[
                 { required: true, message: "请输入验证码" },
-                { max: 18, message: "最大长度18个字符" }
+                { max: 18, message: "最大长度18个字符" },
               ]}
             >
               <Input
@@ -88,8 +99,8 @@ const LoginIndex = props => {
                 id="code"
                 className="captchainput"
                 value={codeCaptcha}
-                onChange={value => {
-                  setcodeCaptcha(value);
+                onChange={({ target }) => {
+                  setcodeCaptcha(target.value);
                 }}
                 placeholder="请输入验证码"
               />

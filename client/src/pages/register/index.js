@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Form, Input, Button, Checkbox } from "antd";
+import { Form, Input, Button, Checkbox, message } from "antd";
 import {
   UserOutlined,
   KeyOutlined,
@@ -7,22 +7,22 @@ import {
   PhoneOutlined,
   MailOutlined,
   EnvironmentOutlined,
-  TeamOutlined
+  TeamOutlined,
 } from "@ant-design/icons";
 import { withRouter } from "react-router-dom";
 import CanvasBack from "../../component/CanvasBack/index.js";
 import LogoImg from "../logo.png";
 import "./index.less";
-const RegisterIndex = props => {
+const RegisterIndex = (props) => {
   const validateMessages = {
     required: "改项必填！",
     types: {
       email: "邮箱格式错误，请重新输入！",
-      number: "数字格式错误，请重新输入！"
+      number: "数字格式错误，请重新输入！",
     },
     number: {
-      range: "超过最大长度"
-    }
+      range: "超过最大长度",
+    },
   };
   const [address, setaddress] = useState("");
   const [email, setemail] = useState("");
@@ -43,10 +43,18 @@ const RegisterIndex = props => {
       email,
       userpwd,
       idcard,
-      role
+      role,
     };
     let registerRes = await window.$post("sys/user/save", params);
-    console.log(registerRes);
+    if (registerRes.code == 0) {
+      message.success("注册成功！");
+      setTimeout(() => {
+        props.history.push("/login");
+      }, 2000);
+    } else {
+      message.error("注册失败，请重试！");
+    }
+    // console.log(registerRes);
   }
   return (
     <div className="page-register">
@@ -72,8 +80,8 @@ const RegisterIndex = props => {
                 {
                   required: true,
                   whitespace: true,
-                  message: "请输入用户名"
-                }
+                  message: "请输入用户名",
+                },
               ]}
             >
               <Input
@@ -81,9 +89,7 @@ const RegisterIndex = props => {
                 size="large"
                 id="username"
                 value={username}
-                onChange={value => {
-                  setusername(value);
-                }}
+                onChange={({target})=>{setusername(target.value)}}
                 placeholder="请输入用户名"
               />
             </Form.Item>
@@ -95,8 +101,8 @@ const RegisterIndex = props => {
                 {
                   required: true,
                   whitespace: true,
-                  message: "请输入真实姓名"
-                }
+                  message: "请输入真实姓名",
+                },
               ]}
             >
               <Input
@@ -104,9 +110,7 @@ const RegisterIndex = props => {
                 size="large"
                 id="name"
                 value={name}
-                onChange={value => {
-                  setname(value);
-                }}
+                onChange={({target})=>{setname(target.value)}}
                 placeholder="请输入真实姓名"
               />
             </Form.Item>
@@ -118,8 +122,8 @@ const RegisterIndex = props => {
                 {
                   required: true,
                   whitespace: true,
-                  message: "请输入身份证号"
-                }
+                  message: "请输入身份证号",
+                },
               ]}
             >
               <Input
@@ -127,9 +131,7 @@ const RegisterIndex = props => {
                 size="large"
                 id="idcard"
                 value={idcard}
-                onChange={value => {
-                  setidcard(value);
-                }}
+                onChange={({target})=>{setidcard(target.value)}}
                 placeholder="请输入身份证号"
               />
             </Form.Item>
@@ -140,8 +142,8 @@ const RegisterIndex = props => {
                 {
                   required: true,
                   whitespace: true,
-                  message: "请输入手机号"
-                }
+                  message: "请输入手机号",
+                },
               ]}
             >
               <Input
@@ -149,9 +151,7 @@ const RegisterIndex = props => {
                 size="large"
                 id="phone"
                 value={phone}
-                onChange={value => {
-                  setphone(value);
-                }}
+                onChange={({target})=>{setphone(target.value)}}
                 placeholder="请输入手机号"
               />
             </Form.Item>
@@ -160,12 +160,12 @@ const RegisterIndex = props => {
               rules={[
                 {
                   type: "email",
-                  message: "请正确填写邮箱格式"
+                  message: "请正确填写邮箱格式",
                 },
                 {
                   required: true,
-                  message: "请填写邮箱地址"
-                }
+                  message: "请填写邮箱地址",
+                },
               ]}
             >
               <Input
@@ -173,9 +173,7 @@ const RegisterIndex = props => {
                 size="large"
                 id="email"
                 value={email}
-                onChange={value => {
-                  setemail(value);
-                }}
+                onChange={({target})=>{setemail(target.value)}}
                 placeholder="请输入邮箱"
               />
             </Form.Item>
@@ -186,8 +184,8 @@ const RegisterIndex = props => {
                 {
                   required: true,
                   whitespace: true,
-                  message: "请输入住宅地址"
-                }
+                  message: "请输入住宅地址",
+                },
               ]}
             >
               <Input
@@ -195,9 +193,7 @@ const RegisterIndex = props => {
                 size="large"
                 id="address"
                 value={address}
-                onChange={value => {
-                  setaddress(value);
-                }}
+                onChange={({target})=>{setaddress(target.value)}}
                 placeholder="请输入住宅地址"
               />
             </Form.Item>
@@ -205,17 +201,15 @@ const RegisterIndex = props => {
               name="userpwd"
               rules={[
                 { required: true, message: "请输入密码" },
-                { max: 18, message: "最大长度18个字符" }
+                { max: 18, message: "最大长度18个字符" },
               ]}
             >
               <Input
                 prefix={<KeyOutlined style={{ fontSize: 13 }} />}
                 size="large"
-                type="userpwd"
+                type="password"
                 value={userpwd}
-                onChange={value => {
-                  setuserpwd(value);
-                }}
+                onChange={({target})=>{setuserpwd(target.value)}}
                 placeholder="请输入密码"
               />
             </Form.Item>
