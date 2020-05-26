@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { DownloadOutlined } from "@ant-design/icons";
+import { DownloadOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import {
   Card,
   Button,
@@ -14,6 +14,7 @@ import {
 import moment from "moment";
 function AdminIndex(props) {
   const { RangePicker } = DatePicker;
+  const { confirm } = Modal;
   const [form] = Form.useForm();
   const columns = [
     {
@@ -23,28 +24,28 @@ function AdminIndex(props) {
     },
     {
       title: "物资名称",
-      key: "name",
-      dataIndex: "name",
+      key: "title",
+      dataIndex: "title",
     },
     {
       title: "物资详情",
-      key: "detail",
-      dataIndex: "detail",
+      key: "details",
+      dataIndex: "details",
     },
     {
       title: "发布时间",
-      key: "pushtime",
-      dataIndex: "pushtime",
+      key: "issueDate",
+      dataIndex: "issueDate",
     },
     {
       title: "到期时间",
-      key: "endtime",
-      dataIndex: "endtime",
+      key: "expireDate",
+      dataIndex: "expireDate",
     },
     {
       title: "物资数量",
-      key: "number",
-      dataIndex: "number",
+      key: "quantity",
+      dataIndex: "quantity",
     },
     {
       title: "申领人数",
@@ -68,7 +69,14 @@ function AdminIndex(props) {
       key: "action",
       render: (text, record) => (
         <>
-          <Button type="link">随机抽取中签</Button>
+          <Button
+            type="link"
+            onClick={() => {
+              ExtractMaterials(record.id);
+            }}
+          >
+            随机抽取中签
+          </Button>
           <Button
             type="link"
             onClick={() => {
@@ -76,6 +84,14 @@ function AdminIndex(props) {
             }}
           >
             查看中签信息
+          </Button>
+          <Button
+            type="link"
+            onClick={() => {
+              showDeleteConfirm(record.id);
+            }}
+          >
+            删除
           </Button>
         </>
       ),
@@ -121,8 +137,8 @@ function AdminIndex(props) {
   ];
   const startTime = moment(
     new Date().getTime() - 7 * 60 * 60 * 24 * 1000
-  ).format("YYYY-MM-DD");
-  const endTime = moment(new Date().getTime()).format("YYYY-MM-DD");
+  ).valueOf();
+  const endTime = moment(new Date().getTime()).valueOf();
   const [IsModal, setIsModal] = useState(false);
   const [IsApplyDetail, setIsApplyDetail] = useState(false);
   const [MaterialsList, setMaterialsList] = useState([]);
@@ -143,9 +159,7 @@ function AdminIndex(props) {
     if (res.code == 0) {
       message.success("发布物资信息成功！");
       setIsModal(false);
-      setTimeout(() => {
-        QueryMaterialsList();
-      }, 2000);
+      QueryMaterialsList();
     } else {
       message.error("发布物资信息失败！");
     }
@@ -165,16 +179,31 @@ function AdminIndex(props) {
       message.error("查询物资列表失败！");
     }
   }
+  function showDeleteConfirm(id) {
+    confirm({
+      title: "确定删该条信息?",
+      icon: <ExclamationCircleOutlined />,
+      content: "",
+      okText: "确认",
+      okType: "danger",
+      cancelText: "取消",
+      onOk() {
+        DelMaterials(id);
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
+  }
   function submitTime(time) {
-    let startDate = moment(time[0]).format("YYYY-MM-DD");
-    let endDate = moment(time[1]).format("YYYY-MM-DD");
-    QueryMaterialsList(startDate, endDate);
+    let startDate = moment(time[0]).format("YYYY-MM-DD 00:00:00");
+    let endDate = moment(time[1]).format("YYYY-MM-DD 24:00:00");
+    let startTime = new Date(startDate);
+    let endTime = new Date(endDate);
+    QueryMaterialsList(startTime.getTime(), endTime.getTime());
   }
   async function DelMaterials(id) {
-    let params = {
-      ids: [id],
-    };
-    let res = await window.$post("sys/materials/delete", params);
+    let res = await window.$get("sys/materials/delete/" + id);
     if (res.code == 0) {
       message.success("删除成功！");
       setTimeout(() => {
@@ -195,6 +224,11 @@ function AdminIndex(props) {
       materialsId,
     };
     let res = await window.$post("sys/materials/extract", params);
+    if (res.code == 0) {
+      message.success("随机抽取成功！");
+    } else {
+      message.error("随机抽取失败！");
+    }
   }
   useEffect(() => {
     QueryMaterialsList();
@@ -215,13 +249,7 @@ function AdminIndex(props) {
           </Button>
           <RangePicker
             style={{ marginBottom: 20, marginLeft: 20 }}
-            placeholder={["发布时间", "到期时间"]}
-            defaultValue={[
-              moment(startTime, "YYYY-MM-DD"),
-              moment(endTime, "YYYY-MM-DD"),
-            ]}
-            style={{ marginBottom: 20 }}
-            placeholder={["发布时间", "到期时间"]}
+            placeholder={["开始时间", "结束时间"]}
             onChange={submitTime}
           />
         </div>
@@ -278,10 +306,6 @@ function AdminIndex(props) {
               id="expireDate"
               showTime={{
                 hideDisabledOptions: true,
-                defaultValue: [
-                  moment("00:00:00", "HH:mm:ss"),
-                  moment("11:59:59", "HH:mm:ss"),
-                ],
               }}
               format="YYYY-MM-DD HH:mm:ss"
             />
@@ -296,7 +320,7 @@ function AdminIndex(props) {
               取消
             </Button>
             <Button type="primary" htmlType="submit">
-              提交修改
+              发布
             </Button>
           </Form.Item>
         </Form>

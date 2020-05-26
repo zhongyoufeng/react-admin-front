@@ -16,7 +16,7 @@ function AdminUserInfoIndex(props) {
   const { confirm } = Modal;
   function showDeleteConfirm(id) {
     confirm({
-      title: "确定删除改用户信息?",
+      title: "确定删该条信息?",
       icon: <ExclamationCircleOutlined />,
       content: "",
       okText: "确认",
@@ -99,10 +99,8 @@ function AdminUserInfoIndex(props) {
     }
   }
   async function delUser(id) {
-    let params = {
-      ids: [id],
-    };
-    let res = await window.$post("sys/user/delete", params);
+   
+    let res = await window.$get("sys/user/delete/"+id);
     if (res.code == 0) {
       message.success("删除改用户信息成功！");
       getAllUserInfo();

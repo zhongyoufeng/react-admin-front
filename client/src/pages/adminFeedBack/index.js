@@ -1,42 +1,36 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Table, message, Pagination } from "antd";
+import { Card, Button, Table, message, Pagination,Modal } from "antd";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 const AdminFeedbackForm = () => {
+  const { confirm } = Modal;
+
   const columns = [
     {
-      title: "物资ID",
+      title: "建议id",
       key: "id",
       dataIndex: "id",
     },
     {
-      title: "物资名称",
-      key: "name",
-      dataIndex: "name",
+      title: "手机号",
+      key: "phone",
+      dataIndex: "phone",
     },
     {
-      title: "物资详情",
-      key: "detail",
-      dataIndex: "detail",
+      title: "邮箱",
+      key: "email",
+      dataIndex: "email",
     },
     {
-      title: "发布时间",
-      key: "pushtime",
-      dataIndex: "pushtime",
+      title: "时间",
+      key: "createdTime",
+      dataIndex: "createdTime",
     },
     {
-      title: "到期时间",
-      key: "endtime",
-      dataIndex: "endtime",
+      title: "反馈内容",
+      key: "content",
+      dataIndex: "content",
     },
-    {
-      title: "物资数量",
-      key: "number",
-      dataIndex: "number",
-    },
-    {
-      title: "申领人数",
-      key: "phonenum",
-      dataIndex: "phonenum",
-    },
+
     {
       title: "操作",
       key: "action",
@@ -45,7 +39,7 @@ const AdminFeedbackForm = () => {
           <Button
             type="link"
             onClick={() => {
-              delSuggest(record.id);
+              showDeleteConfirm(record.id);
             }}
           >
             删除
@@ -71,16 +65,29 @@ const AdminFeedbackForm = () => {
     }
   }
   async function delSuggest(id) {
-    let params = {
-      ids: [id],
-    };
-    let res = await window.$post("sys/suggest/delete", params);
+    let res = await window.$get("sys/suggest/delete/"+id);
     if (res.code == 0) {
       message.success("删除成功！");
       getAllSuggestList();
     } else {
       message.error("删除失败！");
     }
+  }
+  function showDeleteConfirm(id) {
+    confirm({
+      title: "确定删该条信息?",
+      icon: <ExclamationCircleOutlined />,
+      content: "",
+      okText: "确认",
+      okType: "danger",
+      cancelText: "取消",
+      onOk() {
+        delSuggest(id);
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
+    });
   }
   useEffect(() => {
     getAllSuggestList();

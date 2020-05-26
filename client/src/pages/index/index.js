@@ -16,38 +16,32 @@ function Index(props) {
   const { RangePicker } = DatePicker;
   const columns = [
     {
-      title: "物资ID",
-      key: "id",
-      dataIndex: "id",
+      title: "物资名称",
+      key: "title",
+      dataIndex: "title",
     },
     {
       title: "物资详情",
-      key: "detail",
-      dataIndex: "detail",
+      key: "details",
+      dataIndex: "details",
     },
     {
       title: "发布时间",
-      key: "pushtime",
-      dataIndex: "pushtime",
+      key: "issueDate",
+      dataIndex: "issueDate",
     },
     {
       title: "到期时间",
-      key: "endtime",
-      dataIndex: "endtime",
+      key: "expireDate",
+      dataIndex: "expireDate",
     },
     {
       title: "状态",
-      key: "status",
-      dataIndex: "status",
+      key: "isEnd",
+      dataIndex: "isEnd",
       render: (text, record) => (
         <>
-          <span>
-            {text == 1
-              ? "未申领"
-              : text == 2
-              ? "已中签，待发货"
-              : "已过期，不可申领"}
-          </span>
+          <span>{text != 1 ? "可申领" : "已过期，不可申领"}</span>
         </>
       ),
     },
@@ -58,7 +52,7 @@ function Index(props) {
         <>
           <Button
             type="link"
-            disabled={record.status != 1 ? true : false}
+            disabled={record.isEnd == 1 ? true : false}
             onClick={() => {
               AppleMaterials(record.id);
             }}
@@ -72,8 +66,8 @@ function Index(props) {
 
   const startTime = moment(
     new Date().getTime() - 7 * 60 * 60 * 24 * 1000
-  ).format("YYYY-MM-DD");
-  const endTime = moment(new Date().getTime()).format("YYYY-MM-DD");
+  ).valueOf();
+  const endTime = moment(new Date().getTime()).valueOf();
   const [IsModal, setIsModal] = useState(false);
   const [ListData, setListData] = useState([]);
   const [TotalCount, setTotalCount] = useState(0);
@@ -100,9 +94,11 @@ function Index(props) {
     }
   }
   function submitTime(time) {
-    let startDate = moment(time[0]).format("YYYY-MM-DD");
-    let endDate = moment(time[1]).format("YYYY-MM-DD");
-    QueryMaterialsList(startDate, endDate);
+    let startDate = moment(time[0]).format("YYYY-MM-DD 00:00:00");
+    let endDate = moment(time[1]).format("YYYY-MM-DD 24:00:00");
+    let startTime = new Date(startDate);
+    let endTime = new Date(endDate);
+    QueryMaterialsList(startTime.getTime(), endTime.getTime());
   }
   async function AppleMaterials(materialsId) {
     let CurrentUser = JSON.parse(localStorage.getItem("CURRENT_USER_NAME"));
@@ -126,10 +122,6 @@ function Index(props) {
     <div>
       <Card style={{ margin: 10 }} title="物资申领列表" hoverable>
         <RangePicker
-          defaultValue={[
-            moment(startTime, "YYYY-MM-DD"),
-            moment(endTime, "YYYY-MM-DD"),
-          ]}
           style={{ marginBottom: 20 }}
           placeholder={["发布时间", "到期时间"]}
           onChange={submitTime}

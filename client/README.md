@@ -12,5 +12,5 @@ npm run build
 
 ##### 本地启动服务
 
-1、npm install serve
+1、npm install serve -g
 2、serve -s build
